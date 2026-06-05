@@ -1,0 +1,6 @@
+Port 53 Ouvert : domain 
+Port 80 Ouvert : http 
+Port 443 Ouvert : https 
+Port 445 Ouvert : microsoft-ds 
+Port 554 Ouvert : rtsp 
+Port 5357 Ouvert : wsdapi 

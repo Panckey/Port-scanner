@@ -94,26 +94,48 @@ if __name__ == "__main__":
         print("Port minimum supérieur au maximum")
         exit()
 
-    ip = args.ip or str(input("Adresse rechercher : "))
-
+    Baseip = args.ip or str(input("Adresse rechercher : "))
     plage = MaxPort - MinPort
 
+    if "/" in Baseip:
+        a = Baseip.split("/")
+        Mip = a[0]
+        b = a[0]
+        b = b.rsplit(".", 1)
+        x = b[1]
+        b = b[0]
+        Masque = int(a[1])
+    else:
+        Mip = Baseip
+
     try:
-        ip = socket.gethostbyname(ip)
+        ip = socket.gethostbyname(Mip)
         print(f"Adresse Résolue à scanner : {ip}")
     except Exception as e:
         print("L'adresse spécifié est invalide")
         exit()
 
     Start_T = time.time()
-    with ThreadPoolExecutor(max_workers=min(plage, cpu*50)) as executor:
-        executor.map(lambda Port : ScanPort(ip, Port), range(MinPort, MaxPort+1))
-    print(f"{len(OuvPort)} Port ouvert sur {MaxPort}")
-    print(sorted(OuvPort))
-    sorted(SerPort)
-    if args.out != None:
-        with open(f"{args.out}", "+a") as f:
-            for port in SerPort:
-                f.write(port)
+    if not "/" in Baseip:
+        with ThreadPoolExecutor(max_workers=min(plage, cpu*50)) as executor:
+            executor.map(lambda Port : ScanPort(ip, Port), range(MinPort, MaxPort+1))
+        print(f"{len(OuvPort)} Port ouvert sur {MaxPort}")
+        print(sorted(OuvPort))
+        sorted(SerPort)
+        if args.out != None:
+            with open(f"{args.out}", "+a") as f:
+                for port in SerPort:
+                    f.write(port)
+    else:
+        with ThreadPoolExecutor(max_workers=min(plage, cpu*50)) as executor:
+            for i in range(int(x) ,Masque+1):
+                executor.map(lambda Port : ScanPort(f"{b}.{i}", Port), range(MinPort, MaxPort+1))
+        print(f"{len(OuvPort)} Port ouvert sur {MaxPort}")
+        print(sorted(OuvPort))
+        sorted(SerPort)
+        if args.out != None:
+            with open(f"{args.out}", "+a") as f:
+                for port in SerPort:
+                    f.write(port)
     End_T = time.time()
     print(f"Temps écoulé : {round(End_T-Start_T, 3)} secondes")
